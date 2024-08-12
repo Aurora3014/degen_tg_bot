@@ -1,0 +1,38 @@
+{
+  "name": "degen_tg_bot",
+  "version": "1.0.0",
+  "description": "degen_tg_bot for trading support",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "nodemon",
+    "serve": "ts-node ./src",
+    "start": "node ./dist",
+    "lint": "tsc --noEmit && eslint \"**/*.ts\" --quiet --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.2.0",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@raydium-io/raydium-sdk-v2": "^0.1.55-alpha",
+    "@solana/web3.js": "^1.95.2",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.24.0",
+    "drizzle-orm": "^0.33.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "postgres": "^3.4.4"
+  }
+}
