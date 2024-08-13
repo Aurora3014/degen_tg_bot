@@ -1,4 +1,5 @@
 import { botInstance } from "../../utils/bot"
+import { callbackBuy } from "./buy";
 import { callbackStart } from "./start";
 import { callbackWallet } from "./wallet";
 
@@ -14,6 +15,9 @@ export const callbackView = () => {
                 break;
             case 'wallet':
                 await callbackWallet(query, step);
+                break;
+            case 'buy':
+                await callbackBuy(query, step);
                 break;
             default: 
                 await botInstance.sendMessage(query.message?.chat.id!, 'Oops. Unexpeceted CallbackQuery!');

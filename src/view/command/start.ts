@@ -8,12 +8,26 @@ export const onStart = async (msg: TelegramBot.Message) => {
     if(!user){
         createUser(chatId);
     }
-    await botInstance.sendMessage(msg.chat.id!,`Start Page\nWelcome to degen bot.`, {
-        reply_markup: {
-            inline_keyboard: [
-                [{text:'Wallet', callback_data: 'wallet'}]
-            ]
+    await botInstance.sendMessage(msg.chat.id!,
+        `Start Page\nWelcome to degen bot.${user ? `Your Address is <code>${user.publicKey}</code> (tap/click to copy)` : `You have no wallet for now. Create or import in Wallet page`}`, 
+        {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        {text:'Buy', callback_data: 'buy'},
+                        {text:'Sell', callback_data: 'sell'}
+                    ],
+                    [
+                        {text:'Wallet', callback_data: 'wallet'},
+                        {text:'Setting', callback_data: 'setting'}
+                    ],
+                    [
+                        {text:'Refresh', callback_data: 'start'}
+                    ],
+                ]
+            },
+            parse_mode: 'HTML'
         }
-    });
+    );
     return;
 }

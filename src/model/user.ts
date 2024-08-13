@@ -33,3 +33,4 @@ export const updateUserWallet = async (chatId: number, keyPair: Keypair) => {
 
     return user ? true : false;
 }
+
