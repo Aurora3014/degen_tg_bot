@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1723477885445,
-      "tag": "0000_bright_wasp",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1723479471276,
-      "tag": "0001_naive_justice",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1723549163396,
-      "tag": "0002_nifty_invisible_woman",
+      "when": 1723603256695,
+      "tag": "0000_lush_sinister_six",
       "breakpoints": true
     }
   ]
