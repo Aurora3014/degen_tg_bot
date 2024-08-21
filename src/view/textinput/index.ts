@@ -1,10 +1,16 @@
+import { CallbackQuery } from "node-telegram-bot-api";
 import { isPublicKey } from "@metaplex-foundation/umi"
 import { getPoolInfo, getTokenInfo } from "../../controller/token"
 import { importExistingWallet } from "../../controller/wallet"
-import { getUser, getUserState, updateUserState, updateUserWallet } from "../../model/user"
+import { getUser, getUserState, updateUser, updateUserParams, updateUserState, updateUserWallet } from "../../model/user"
 import { initRayidumInstance } from "../../utils/amm"
 import { botInstance } from "../../utils/bot"
 import { USER_STATE } from "../../utils/constant"
+import { db } from "../../utils/db"
+import { users } from "../../model/schema"
+import { callbackSetting } from "../callback/setting"
+
+
 
 export const inputView = () => {
     botInstance.on('text', async (msg) => {
@@ -14,6 +20,8 @@ export const inputView = () => {
         const user = await getUser(chatId)
         if(!user) return;
         switch(user!.state){
+            case USER_STATE.idle:
+                break;
             case USER_STATE.wallet_import:
                 console.log('here')
                 const keypair = importExistingWallet(msg.text!)
@@ -47,7 +55,7 @@ export const inputView = () => {
                 const raydium = await initRayidumInstance( owner)
                 const poolInfo = await getPoolInfo( owner, address )
                 const res = await raydium.liquidity.getRpcPoolInfos([])
-                
+                await updateUserParams(chatId, address);
                 botInstance.sendMessage(
                     chatId,
                     `${tokenInfo.content.metadata.name} | $${tokenInfo.content.metadata.name}\n` + 
@@ -67,7 +75,86 @@ export const inputView = () => {
                         parse_mode: 'HTML'
                     }
                 )
+                await updateUserState(chatId, USER_STATE.idle);
                 
+                break;
+            case USER_STATE.buy_option_1:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    buyOption1: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.buy_option_2:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    buyOption2: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.sell_option_1:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    sellOption1: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.sell_option_2:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    sellOption2: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.buy_slippage:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    buySlippage: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.sell_slippage:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.update(users).set({
+                    sellSlippage: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await callbackSetting(chatId, 'setting', 1)
                 break;
             default: 
                 await botInstance.sendMessage(chatId, 'Oops. Unexpeceted Input!', {

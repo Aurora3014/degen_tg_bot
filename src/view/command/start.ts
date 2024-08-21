@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { botInstance } from "../../utils/bot";
 import { createUser, getUser } from "../../model/user";
+import {  } from "../../controller/token";
 
 export const onStart = async (msg: TelegramBot.Message) => {
     const chatId = msg.chat.id;
@@ -15,7 +16,7 @@ export const onStart = async (msg: TelegramBot.Message) => {
                 inline_keyboard: [
                     [
                         {text:'Buy', callback_data: 'buy'},
-                        {text:'Sell', callback_data: 'sell'}
+                        {text:'Manage', callback_data: 'manage'}
                     ],
                     [
                         {text:'Wallet', callback_data: 'wallet'},

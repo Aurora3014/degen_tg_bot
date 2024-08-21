@@ -6,7 +6,13 @@ export const USER_STATE = {
     start: 'START',
     wallet: 'WALLET',
     wallet_import: 'WALLET_IMPORT',
-    buy_newbuy: 'BUY_NEWBUY'
+    buy_newbuy: 'BUY_NEWBUY',
+    buy_option_1: 'BUY_OPTION_1',
+    buy_option_2: 'BUY_OPTION_2',
+    sell_option_1: 'SELL_OPTION_1',
+    sell_option_2: 'SELL_OPTION_2',
+    buy_slippage: 'BUY_SLIPPAGE',
+    sell_slippage: 'SELL_SLIPPAGE'
 }
 
 export const RAYDIUM_LIQUIDITY_POOL_V4_ADDRESS = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
@@ -27,3 +33,8 @@ export interface DasApiAssetWithTokenInfo extends DasApiAsset {
       freeze_authority: string;
     };
   }
+
+export interface REPLY_MARKUP_BUTTON {
+  text: string,
+  callback_data: string
+}

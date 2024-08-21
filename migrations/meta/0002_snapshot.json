@@ -1,6 +1,6 @@
 {
-  "id": "ca9f63d5-9482-4cd9-ac35-8687db9383e8",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "169e0aa8-0825-4e43-bb33-ff078cd5d1d1",
+  "prevId": "f07969ae-11d7-4bf6-9580-63fcb0f22487",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -29,6 +29,12 @@
         "symbol": {
           "name": "symbol",
           "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_spent_sol": {
+          "name": "total_spent_sol",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         }
@@ -184,6 +190,27 @@
           "primaryKey": false,
           "notNull": true,
           "default": 2
+        },
+        "buy_slippage": {
+          "name": "buy_slippage",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "sell_slippage": {
+          "name": "sell_slippage",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "priority_fee": {
+          "name": "priority_fee",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0.001
         }
       },
       "indexes": {},

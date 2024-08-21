@@ -2,6 +2,7 @@ import { Raydium, TxVersion } from "@raydium-io/raydium-sdk-v2";
 import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
 
 export const connection = new Connection('https://doralyn-onotsf-fast-mainnet.helius-rpc.com')
+export const connectionJito = new Connection('https://mainnet.block-engine.jito.wtf/api/v1/transactions')
 // export const connection = new Connection(clusterApiUrl('devnet'));
 
 export const txVersion = TxVersion.V0 // or TxVersion.LEGACY
@@ -9,11 +10,11 @@ export const txVersion = TxVersion.V0 // or TxVersion.LEGACY
 const cluster = 'mainnet';
 let raydium: Raydium | undefined;
 
-export const initRayidumInstance = async (owner: Keypair, loadToken?: boolean) => {
+export const initRayidumInstance = async (owner: Keypair, isJito: boolean = true, loadToken?: boolean) => {
     if(raydium) return raydium;
     raydium = await Raydium.load({
         owner,
-        connection,
+        connection: isJito ? connection : connectionJito,
         cluster,
         disableFeatureCheck: true,
         disableLoadToken: loadToken,
