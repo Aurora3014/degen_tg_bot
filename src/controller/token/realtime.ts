@@ -6,13 +6,14 @@ import { initRayidumInstance } from "../../utils/amm";
 import { WSOL_ADDRESS } from "../../utils/constant";
 import { importExistingWallet } from "../wallet";
 import { getSLPrice, getTPPrice, getTSPrice } from "./manage";
-import { swapToken } from "./swap";
-
+import { swapJupiter } from "./swap";
+import { fetchPrice } from "../api/fetchPrice";
+// TP, SL, T-SL
 const realtimeInstance = setInterval(async () => {
     try {
         // watch dog for TP, SL, TS. 
         const users = await getUsers();
-        const solPrice = (await getTokenInfo(WSOL_ADDRESS)).token_info.price_info.price_per_token;
+        const solPrice = (await fetchPrice(WSOL_ADDRESS))?.data[WSOL_ADDRESS].price;
         if(!users)
             return;
         users.map(async user => {
@@ -22,14 +23,13 @@ const realtimeInstance = setInterval(async () => {
             if(!tokens)
                 return;
             tokens.map( async token => {
-                const tokenPrice = (await getTokenInfo(token.tokens.address)).token_info.price_info.price_per_token;
-                const tokenPriceInSol = tokenPrice / solPrice;
+                const tokenPriceInSol = (await fetchPrice(token.tokens.address, WSOL_ADDRESS))?.data[token.tokens.address].price!
                 const topLimit = await getTPPrice(token.tokens.totalSpentSol.div(new BN(1000_000_000)).toNumber())
                 const bottomLimit = await getSLPrice(token.tokens.totalSpentSol.div(new BN(1000_000_000)).toNumber())
                 const bottomSaleLimit = await getTSPrice(token.tokens.totalSpentSol.div(new BN(1000_000_000)).toNumber());
                 if(topLimit <= tokenPriceInSol || bottomLimit >= tokenPriceInSol || bottomSaleLimit >= tokenPriceInSol){
                     const tokenBalance = await getTokenBalance(user.publicKey!, token.tokens.address);
-                    await swapToken(user.chatId, token.tokens.address, tokenBalance, false);
+                    await swapJupiter(user.chatId, token.tokens.address, tokenBalance, false);
                 }
             })
         })

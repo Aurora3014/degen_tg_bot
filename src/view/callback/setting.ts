@@ -1,9 +1,7 @@
-import { CallbackQuery } from "node-telegram-bot-api";
 import { getUser, updateUserState } from "../../model/user";
 import { botInstance } from "../../utils/bot";
-import { getTokensOfUser } from "../../model/token";
-import { REPLY_MARKUP_BUTTON, USER_STATE } from "../../utils/constant";
-import { swapToken } from "../../controller/token/swap";
+import { USER_STATE } from "../../utils/constant";
+// import { swapToken } from "../../controller/token/swap";
 
 
 /**

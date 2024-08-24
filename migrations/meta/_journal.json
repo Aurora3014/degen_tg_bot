@@ -22,6 +22,13 @@
       "when": 1724071857362,
       "tag": "0002_sudden_richard_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1724319402090,
+      "tag": "0003_slimy_the_professor",
+      "breakpoints": true
     }
   ]
 }

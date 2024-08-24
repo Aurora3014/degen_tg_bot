@@ -1,16 +1,14 @@
 import { CallbackQuery } from "node-telegram-bot-api";
 import { isPublicKey } from "@metaplex-foundation/umi"
-import { getPoolInfo, getTokenInfo } from "../../controller/token"
+import { getTokenInfo } from "../../controller/token"
 import { importExistingWallet } from "../../controller/wallet"
-import { getUser, getUserState, updateUser, updateUserParams, updateUserState, updateUserWallet } from "../../model/user"
-import { initRayidumInstance } from "../../utils/amm"
+import { getUser, updateUserParams, updateUserState, updateUserWallet } from "../../model/user"
 import { botInstance } from "../../utils/bot"
 import { USER_STATE } from "../../utils/constant"
 import { db } from "../../utils/db"
-import { users } from "../../model/schema"
+import { orders, users } from "../../model/schema"
 import { callbackSetting } from "../callback/setting"
-
-
+import { fetchPrice } from "../../controller/api/fetchPrice";
 
 export const inputView = () => {
     botInstance.on('text', async (msg) => {
@@ -50,17 +48,15 @@ export const inputView = () => {
                     break;
                 }
                 const tokenInfo = await getTokenInfo(address);
+                const tokenPrice = (await fetchPrice(address))?.data[address].price;
+                console.log(tokenInfo)
                 const user = await getUser(chatId)
-                const owner = importExistingWallet( user!.secretKey! )
-                const raydium = await initRayidumInstance( owner)
-                const poolInfo = await getPoolInfo( owner, address )
-                const res = await raydium.liquidity.getRpcPoolInfos([])
                 await updateUserParams(chatId, address);
                 botInstance.sendMessage(
                     chatId,
                     `${tokenInfo.content.metadata.name} | $${tokenInfo.content.metadata.name}\n` + 
                     `<code>${address}</code>\n` + 
-                    `Price: $${tokenInfo.token_info.price_info.price_per_token}\n`,
+                    `Price: $${tokenPrice}\n`,
                     {
                         reply_markup: {
                             inline_keyboard: [
@@ -155,6 +151,32 @@ export const inputView = () => {
                 })
                 await updateUserState(chatId, USER_STATE.idle);
                 await callbackSetting(chatId, 'setting', 1)
+                break;
+            case USER_STATE.take_profit:
+            case USER_STATE.stop_loss:
+            case USER_STATE.trailing_stop_loss:
+                if(isNaN(+msg.text!)){
+                    botInstance.sendMessage(chatId, 
+                        `Invalid value, Please enter again.`
+                    )
+                    break;
+                }
+                await db.insert(orders).values({
+                    chatId,
+                    tokenAddress: user?.params!,
+                    type: user?.state!,
+                    value: +msg.text!
+                })
+                await updateUserState(chatId, USER_STATE.idle);
+                await botInstance.sendMessage(
+                    chatId, 
+                    `Successfully updated.`,
+                    {
+                        reply_markup:{
+                            inline_keyboard: [[ {text: '<< Back', callback_data: `manage/token/${user?.params}`} ]]
+                        }
+                    }
+                )
                 break;
             default: 
                 await botInstance.sendMessage(chatId, 'Oops. Unexpeceted Input!', {

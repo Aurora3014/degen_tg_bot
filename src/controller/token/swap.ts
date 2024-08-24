@@ -11,8 +11,10 @@ import { eq } from "drizzle-orm"
 import { db } from "../../utils/db"
 import { tokens, trades } from "../../model/schema"
 import { isValidAmm } from "../../utils/utils"
+import { flowQuoteAndSwap } from "../jupiter"
+import { WSOL_ADDRESS } from "../../utils/constant"
 
-export const swapToken = async (chatId: number, tokenAddress: string, amountIn: number, isBuy: boolean = true) => {
+const swapToken = async (chatId: number, tokenAddress: string, amountIn: number, isBuy: boolean = true) => {
     console.log(`Buy ${tokenAddress}`)
     botInstance.sendMessage(chatId, 'Processing transaction ...')
     const user = await getUser(chatId)
@@ -141,4 +143,23 @@ export const swapToken = async (chatId: number, tokenAddress: string, amountIn: 
             }
         )
     })
+}
+
+
+export const swapJupiter = async (chatId: number, tokenAddress: string, amountIn: number, isBuy: boolean = true) => {
+    const user = await getUser(chatId);
+    await flowQuoteAndSwap(
+        user?.secretKey!,
+        isBuy ? WSOL_ADDRESS : tokenAddress, 
+        isBuy ? tokenAddress : WSOL_ADDRESS,
+        amountIn,
+        false,
+        0,
+        100 * ( isBuy ? user?.buySlippage! : user?.sellSlippage! ),
+        true,
+        false,
+        false,
+        true,
+        "auto"
+    )
 }

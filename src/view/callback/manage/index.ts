@@ -1,16 +1,15 @@
 import { CallbackQuery } from "node-telegram-bot-api";
-import { getUser, updateUserState } from "../../model/user";
-import { botInstance } from "../../utils/bot";
-import { getTokenOfUser, getTokensOfUser } from "../../model/token";
-import { REPLY_MARKUP_BUTTON, USER_STATE, WSOL_ADDRESS } from "../../utils/constant";
-import { L } from "@raydium-io/raydium-sdk-v2/lib/raydium-2dba3573";
-import { swapToken } from "../../controller/token/swap";
-import { getPoolInfo, getSOlBalance, getTokenBalance, getTokenInfo } from "../../controller/token";
-import { importExistingWallet } from "../../controller/wallet";
-import { initRayidumInstance } from "../../utils/amm";
-import { deleteLastMessage } from ".";
+import { getUser, updateUserParams, updateUserState } from "../../../model/user";
+import { botInstance } from "../../../utils/bot";
+import { getTokenOfUser, getTokensOfUser } from "../../../model/token";
+import { REPLY_MARKUP_BUTTON, USER_STATE, WSOL_ADDRESS } from "../../../utils/constant";
+// import { swapToken } from "../../../controller/token/swap";
+import { getSOlBalance, getTokenBalance, getTokenInfo } from "../../../controller/token";
+import { deleteLastMessage } from "../";
 import BN from "bn.js";
-import { closePosition } from "../../controller/token/manage";
+import { closePosition } from "../../../controller/token/manage";
+import { swapJupiter } from "../../../controller/token/swap";
+import { fetchPrice } from "../../../controller/api/fetchPrice";
 
 
 /**
@@ -53,8 +52,8 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             const address = query.data!.split('/')[step+1];
             const token = (await getTokenOfUser(chatId, address))[0]
             const tokenInfo = await getTokenInfo(address);
-            const solInfo = await getTokenInfo(WSOL_ADDRESS)
-
+            const tokenInSOL = (await fetchPrice(address, WSOL_ADDRESS))!.data[WSOL_ADDRESS].price;
+            const solInUSD = (await fetchPrice(WSOL_ADDRESS))!.data[WSOL_ADDRESS].price;
             const user = await getUser(chatId)
             // const owner = importExistingWallet( user!.secretKey! )
             // const raydium = await initRayidumInstance( owner)
@@ -66,12 +65,12 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             const tokenBalance = await getTokenBalance(token.users.publicKey!, address);
             const profitSol = 
                 token.tokens.totalSpentSol.div(new BN(10 ** 9)).toNumber()- 
-                tokenBalance * tokenInfo.token_info.price_info.price_per_token / solInfo.token_info.price_info.price_per_token ;
+                tokenBalance * tokenInSOL ;
             
             await botInstance.sendMessage(chatId,
                 `${tokenInfo.content.metadata.name} | $${tokenInfo.content.metadata.name}\n` + 
                 `<code>${address}</code>\n` + 
-                `Price: ${tokenInfo.token_info.price_info.price_per_token}$ / ${tokenInfo.token_info.price_info.price_per_token/solInfo.token_info.price_info.price_per_token} SOL\n` + 
+                `Price: ${tokenInSOL} SOL\n` + 
                 `Profit: ${profitSol} SOL\n` +
                 `Total Spent: ${token.tokens.totalSpentSol.div(new BN (10 ** 9))} SOL\n` +
                 `Token Balance: ${tokenBalance ? tokenBalance : 0} ${tokenInfo.content.metadata.name}\n` + 
@@ -95,6 +94,11 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                             {text:'Sell X %', callback_data: `manage/sell/x/${address}`},
                         ],
                         [
+                            {text: 'Take Profit', callback_data: `manage/order/${USER_STATE.take_profit}/${address}`},
+                            {text: 'Stop Loss', callback_data: `manage/order/${USER_STATE.stop_loss}/${address}`},
+                            {text: 'Trailing SL', callback_data: `manage/order/${USER_STATE.trailing_stop_loss}/${address}`},
+                        ],
+                        [
                             {text: 'Explorer', url:`https://explorer.solana.com/address/${address}`},
                             {text: 'Birdeye', url:`https://birdeye.so/token/${address}?chain=solana`},
                             {text: 'Solscan', url:`https://solscan.io/token/${address}`}
@@ -108,7 +112,7 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             });
             await updateUserState(chatId, USER_STATE.buy_newbuy);
             break;
-        
+            
         case 'buy':
         case 'sell':
             const currentUser = await getUser(chatId);
@@ -138,11 +142,15 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                     break;
                 }
             }
-            await swapToken(chatId, tokenAddress!, buysellAmount, isBuy)
+            await swapJupiter(chatId, tokenAddress!, buysellAmount, isBuy)
 
             break;
         case 'close':
-            await closePosition(chatId, query.data!.split('/')[step+1])
+            await closePosition(chatId, query.data!.split('/')[step + 1])
+            break;
+        case 'order':
+            await updateUserState(chatId, query.data!.split('/')[step + 1]);
+            await updateUserParams(chatId, query.data!.split('/')[step + 2])
             break;
         default:
             break

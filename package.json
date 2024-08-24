@@ -15,8 +15,12 @@
   "license": "ISC",
   "devDependencies": {
     "@types/bn.js": "^5.1.5",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.2.0",
     "@types/node-telegram-bot-api": "^0.64.7",
+    "@types/promise-retry": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
     "eslint": "^9.9.0",
@@ -27,6 +31,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@jup-ag/api": "^6.0.27",
     "@metaplex-foundation/digital-asset-standard-api": "^1.0.4",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/umi": "^0.9.2",
@@ -35,15 +40,20 @@
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.2",
     "@types/jsonfile": "^6.1.4",
+    "axios": "^1.7.4",
     "bn.js": "^5.2.1",
+    "body-parser": "^1.20.2",
     "bs58": "^6.0.0",
+    "cors": "^2.8.5",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.24.0",
     "drizzle-orm": "^0.33.0",
+    "express": "^4.19.2",
     "jsonfile": "^6.1.0",
     "node-telegram-bot-api": "^0.66.0",
     "postgres": "^3.4.4",
+    "promise-retry": "^2.0.1",
     "ws": "^8.18.0"
   }
 }

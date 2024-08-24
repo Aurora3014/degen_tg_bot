@@ -7,7 +7,6 @@ import { Commitment, Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { connection, initRayidumInstance } from '../../utils/amm';
 import { PoolFetchType } from '@raydium-io/raydium-sdk-v2';
 
-
 export const getTokenInfo = async (address: string) => {
     const umi = createUmi(process.env.MAINNET_RPC!).use(dasApi());
     const assetId = publicKey(address);

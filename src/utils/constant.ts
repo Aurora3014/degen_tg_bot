@@ -12,7 +12,11 @@ export const USER_STATE = {
     sell_option_1: 'SELL_OPTION_1',
     sell_option_2: 'SELL_OPTION_2',
     buy_slippage: 'BUY_SLIPPAGE',
-    sell_slippage: 'SELL_SLIPPAGE'
+    sell_slippage: 'SELL_SLIPPAGE',
+    stop_loss: 'STOP_LOSS',
+    take_profit: 'TAKE_PROFIT',
+    trailing_stop_loss: 'TRAILING_STOP_LOSS'
+
 }
 
 export const RAYDIUM_LIQUIDITY_POOL_V4_ADDRESS = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";

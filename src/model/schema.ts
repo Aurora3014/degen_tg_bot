@@ -2,6 +2,13 @@ import { publicKey } from "@raydium-io/raydium-sdk-v2";
 import BN from "bn.js";
 import { bigint, bigserial, boolean, customType, doublePrecision, integer, numeric, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
+
+interface ORDER_TYPE {
+   stopLoss: 'STOP_LOSS',
+   takeProfit: 'TAKE_PROFIT',
+   trailingStopLoss: 'TRAILING_STOP_LOSS'
+}
+
 const bn = customType<{
    data: BN;
    driverData: bigint;
@@ -58,3 +65,19 @@ export const trades = pgTable('trades', {
    amountIn: bn('amount_in').notNull(),
    amountOut: bn('amount_out').notNull()
 })
+
+export const orders = pgTable('orders', {
+   id: bigserial("id", {mode: 'number'}).primaryKey().notNull(),
+   chatId: bigint ('chat_id', {mode: 'number'}).references(() => users.chatId, {
+      onDelete: 'cascade'
+   }).notNull(),
+   tokenAddress: varchar("token_address", { length: 50 })
+      .notNull(),
+   timestamp: timestamp("timestamp", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+   type: varchar("type", { length: 30 })
+      .notNull(),
+   value: doublePrecision('value').notNull(),
+   isClosed: boolean('is_closed').notNull().default(true)
+});
