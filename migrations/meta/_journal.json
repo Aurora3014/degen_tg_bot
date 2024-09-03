@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1723661096710,
-      "tag": "0000_glossy_shooting_star",
+      "when": 1724933823761,
+      "tag": "0000_dashing_franklin_richards",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1724048725510,
-      "tag": "0001_famous_bulldozer",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1724071857362,
-      "tag": "0002_sudden_richard_fisk",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1724319402090,
-      "tag": "0003_slimy_the_professor",
+      "when": 1725181710004,
+      "tag": "0001_nervous_zeigeist",
       "breakpoints": true
     }
   ]

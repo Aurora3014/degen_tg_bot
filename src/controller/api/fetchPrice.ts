@@ -3,28 +3,30 @@ import axios from "axios";
 interface PriceResponse {
     data: {
       [key: string]: {
-        id: string;
-        mintSymbol: string;
-        vsToken: string;
-        vsTokenSymbol: string;
-        price: number;
+        updateUnixTime: string;
+        updateHumanTime: string;
+        priceChange24h: string;
+        value: number;
       };
     };
     timeTaken: number;
   }
   
-export  async function fetchPrice(address: string, mainAddress: string = "USDC") {
+export async function fetchPrice(address: string, mainAddress?: string) {
 
     try {
-        
-        const response = await axios.get<PriceResponse>('https://price.jup.ag/v6/price', {
+      console.log('fetchPrice: ' + address)
+      if(!address){
+        console.log('non-address error')
+        return;
+      }
+        const response = await axios.get<PriceResponse>('https://birdeye-proxy.jup.ag/defi/multi_price?', {
             params: {
-                ids: address,
-                vsToken: mainAddress,
+                list_address: address + (mainAddress ? `,${mainAddress}` : ''),
+                // vsToken: mainAddress,
             },
         });
-    
-        const priceData = response.data.data[address];
+        let priceInMainAddress = 0;
         return response.data as PriceResponse
     } catch (error) {
         console.error('Error fetching price:', error);

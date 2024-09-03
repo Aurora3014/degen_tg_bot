@@ -13,9 +13,9 @@ export const USER_STATE = {
     sell_option_2: 'SELL_OPTION_2',
     buy_slippage: 'BUY_SLIPPAGE',
     sell_slippage: 'SELL_SLIPPAGE',
-    stop_loss: 'STOP_LOSS',
-    take_profit: 'TAKE_PROFIT',
-    trailing_stop_loss: 'TRAILING_STOP_LOSS'
+    stop_loss: 'SL',
+    take_profit: 'TP',
+    trailing_stop_loss: 'TSL'
 
 }
 

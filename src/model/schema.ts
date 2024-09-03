@@ -31,8 +31,8 @@ export const users = pgTable('users', {
    secretKey: varchar("secret_key", { length: 256 }).default(''),
    state: text("state").default(''),
    params: text("params").default(''),
-   buyOption1: doublePrecision("buy_option1").notNull().default(1),
-   buyOption2: doublePrecision("buy_option2").notNull().default(2),
+   buyOption1: doublePrecision("buy_option1").notNull().default(0.00001),
+   buyOption2: doublePrecision("buy_option2").notNull().default(0.00002),
    sellOption1: doublePrecision("sell_option1").notNull().default(1),
    sellOption2: doublePrecision("sell_option2").notNull().default(2),
    buySlippage: doublePrecision("buy_slippage").notNull().default(1),       // %
@@ -41,13 +41,15 @@ export const users = pgTable('users', {
 })
 
 export const tokens = pgTable ('tokens', {
-   address: varchar("public_key", { length: 50 }).primaryKey().notNull(),
+   id: bigserial("id", {mode: 'number'}).primaryKey().notNull(),
+   address: varchar("public_key", { length: 50 }).notNull(),
    chatId: bigint('chat_id', {mode: 'number'}).references(() => users.chatId, {
       onDelete: 'cascade'
    }).notNull(),
-   name: varchar("name", { length: 20 }).notNull(),
+   name: varchar("name", { length: 50 }).notNull(),
    symbol: varchar("symbol", { length: 10 }).notNull(),
    totalSpentSol: bn("total_spent_sol").notNull(),
+   maxPrice: bigint("max_price", {mode: 'number'}).notNull().default(0),
    // description: varchar("description", { length: 256 }),
 })
 
@@ -68,11 +70,12 @@ export const trades = pgTable('trades', {
 
 export const orders = pgTable('orders', {
    id: bigserial("id", {mode: 'number'}).primaryKey().notNull(),
-   chatId: bigint ('chat_id', {mode: 'number'}).references(() => users.chatId, {
+   chatId: bigint('chat_id', {mode: 'number'}).references(() => users.chatId, {
       onDelete: 'cascade'
    }).notNull(),
-   tokenAddress: varchar("token_address", { length: 50 })
-      .notNull(),
+   tokenId: bigint("token_id", {mode: 'number'}).references(() => tokens.id, {
+      onDelete: 'cascade'
+   }).notNull(),
    timestamp: timestamp("timestamp", { withTimezone: true })
       .defaultNow()
       .notNull(),

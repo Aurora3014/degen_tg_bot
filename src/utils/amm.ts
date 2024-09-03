@@ -1,7 +1,7 @@
 import { Raydium, TxVersion } from "@raydium-io/raydium-sdk-v2";
 import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
 
-export const connection = new Connection('https://doralyn-onotsf-fast-mainnet.helius-rpc.com')
+export const connection = new Connection(process.env.MAINNET_RPC!)
 export const connectionJito = new Connection('https://mainnet.block-engine.jito.wtf/api/v1/transactions')
 // export const connection = new Connection(clusterApiUrl('devnet'));
 

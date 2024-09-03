@@ -15,23 +15,17 @@ export const callbackBuy = async (query: CallbackQuery, step: number) => {
     const user = await getUser(chatId);
     switch (query.data!.split('/')[step]){
         case 'option1':
-            botInstance.sendMessage(
-                chatId,
-                `Processing ...`
-            )
-            await swapJupiter(chatId, user?.params!, +user?.buyOption1!)
+
+            await swapJupiter(chatId, user?.params!, +user?.buyOption1!, true, true)
             break;
         case 'option2':
-            botInstance.sendMessage(
-                chatId,
-                `Processing ...`
-            )
-            await swapJupiter(chatId, user?.params!, +user?.buyOption2!)
+
+            await swapJupiter(chatId, user?.params!, +user?.buyOption2!, true, true)
             break;
         default:
             let keyboards: REPLY_MARKUP_BUTTON[][] = [[]];
             await updateUserState(chatId, USER_STATE.buy_newbuy);
-            const userTokens = await getTokensOfUser(chatId);
+            // const userTokens = await getTokensOfUser(chatId);
 
             // userTokens.map(async (userToken) => {
             //     keyboards.push([{
@@ -39,12 +33,14 @@ export const callbackBuy = async (query: CallbackQuery, step: number) => {
             //         callback_data: `manage/token/${userToken.tokens.address}`
             //     }])
             // })
+
             keyboards.push([{
                 text: '<< Back',
                 callback_data: 'start'
             }])
             
-            await botInstance.sendMessage(chatId,`Enter new token address to buy token`,{
+            await botInstance.sendMessage(
+                chatId, `Enter new token address to buy token`, {
                 reply_markup: {
                     inline_keyboard: keyboards                    
                 }

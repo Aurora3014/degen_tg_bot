@@ -49,30 +49,26 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             break;
         case 'token':
             deleteLastMessage(query);
+            botInstance.sendMessage(chatId, 'Loading ...')
             const address = query.data!.split('/')[step+1];
             const token = (await getTokenOfUser(chatId, address))[0]
             const tokenInfo = await getTokenInfo(address);
-            const tokenInSOL = (await fetchPrice(address, WSOL_ADDRESS))!.data[WSOL_ADDRESS].price;
-            const solInUSD = (await fetchPrice(WSOL_ADDRESS))!.data[WSOL_ADDRESS].price;
+            const res = await fetchPrice(address, WSOL_ADDRESS)
+            const tokenInSOL = res!.data[address].value / res!.data[WSOL_ADDRESS].value;
+            // const solInUSD = (await fetchPrice(WSOL_ADDRESS))!.data[WSOL_ADDRESS].price;
             const user = await getUser(chatId)
-            // const owner = importExistingWallet( user!.secretKey! )
-            // const raydium = await initRayidumInstance( owner)
-            // const poolInfo = await getPoolInfo( owner, address )
-            // const res = await raydium.liquidity.getRpcPoolInfos([])
-            // (await raydium.api.getTokenInfo('jkhgdkhdkhgdkg'))[0].
-            // await updateUserParams(chatId, address);
             const solBalance = await getSOlBalance(token.users.publicKey!);
             const tokenBalance = await getTokenBalance(token.users.publicKey!, address);
             const profitSol = 
-                token.tokens.totalSpentSol.div(new BN(10 ** 9)).toNumber()- 
+                 -  token.tokens.totalSpentSol.div(new BN(10 ** 9)).toNumber() +  
                 tokenBalance * tokenInSOL ;
-            
+            console.log(address)
             await botInstance.sendMessage(chatId,
                 `${tokenInfo.content.metadata.name} | $${tokenInfo.content.metadata.name}\n` + 
                 `<code>${address}</code>\n` + 
                 `Price: ${tokenInSOL} SOL\n` + 
                 `Profit: ${profitSol} SOL\n` +
-                `Total Spent: ${token.tokens.totalSpentSol.div(new BN (10 ** 9))} SOL\n` +
+                `Total Spent: ${token.tokens.totalSpentSol.toNumber() / (10 ** 9)} SOL\n` +
                 `Token Balance: ${tokenBalance ? tokenBalance : 0} ${tokenInfo.content.metadata.name}\n` + 
                 `SOL balance: ${solBalance} SOL`,
 
@@ -94,9 +90,9 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                             {text:'Sell X %', callback_data: `manage/sell/x/${address}`},
                         ],
                         [
-                            {text: 'Take Profit', callback_data: `manage/order/${USER_STATE.take_profit}/${address}`},
-                            {text: 'Stop Loss', callback_data: `manage/order/${USER_STATE.stop_loss}/${address}`},
-                            {text: 'Trailing SL', callback_data: `manage/order/${USER_STATE.trailing_stop_loss}/${address}`},
+                            {text: 'Take Profit', callback_data: `manage/order/${USER_STATE.take_profit}/${token.tokens.id}`},
+                            {text: 'Stop Loss', callback_data: `manage/order/${USER_STATE.stop_loss}/${token.tokens.id}`},
+                            {text: 'Trailing SL', callback_data: `manage/order/${USER_STATE.trailing_stop_loss}/${token.tokens.id}`},
                         ],
                         [
                             {text: 'Explorer', url:`https://explorer.solana.com/address/${address}`},
@@ -116,9 +112,11 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
         case 'buy':
         case 'sell':
             const currentUser = await getUser(chatId);
-
             const optionString = query.data!.split('/')[step + 1];
             const tokenAddress = query.data?.split('/')[step + 2];
+            const tokenBuySell = (await getTokenOfUser(chatId, tokenAddress!))[0]
+            // const solBalanceOfUser = await getSOlBalance(tokenBuySell.users.publicKey!);
+            const tokenBalanceOfUser = await getTokenBalance(tokenBuySell.users.publicKey!, tokenAddress!);
             let buysellAmount = 0;
             let isBuy = true;
             if(query.data!.split('/')[step] == 'buy'){
@@ -134,14 +132,15 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             } else {
                 isBuy = false
                 if(optionString == '1'){
-                    buysellAmount = currentUser?.sellOption1!;
+                    buysellAmount = +tokenBalanceOfUser * currentUser?.sellOption1! / 100;
                 } else if(optionString == '2'){
-                    buysellAmount = currentUser?.sellOption2!;
+                    buysellAmount = +tokenBalanceOfUser * currentUser?.sellOption2! / 100;
                 } else {
                     console.log('Sell X amount in Manage page\n To do...');
                     break;
                 }
             }
+            console.log(buysellAmount, tokenAddress, 'sell or buy')
             await swapJupiter(chatId, tokenAddress!, buysellAmount, isBuy)
 
             break;
@@ -150,7 +149,20 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             break;
         case 'order':
             await updateUserState(chatId, query.data!.split('/')[step + 1]);
-            await updateUserParams(chatId, query.data!.split('/')[step + 2])
+            await updateUserParams(chatId, query.data!.split('/')[step + 2]);
+            let message = '';
+            switch(query.data!.split('/')[step + 1]){
+                case USER_STATE.take_profit:
+                    message = 'Type in TP price.';
+                    break;
+                case USER_STATE.stop_loss:
+                    message = 'Type in SL price.';
+                    break;
+                case USER_STATE.trailing_stop_loss:
+                    message = 'Type in Trailing SL in Percent.';
+                    break;
+            }
+            await botInstance.sendMessage(chatId, message);
             break;
         default:
             break

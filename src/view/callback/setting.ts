@@ -40,7 +40,7 @@ export const callbackSetting = async (chatId: number, callBack: string, step: nu
                             ],
                             [
                                 { text:'<< Back', callback_data: 'start' },
-                            ],
+                            ]
                         ]
                     }
                 }

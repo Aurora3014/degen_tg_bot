@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm"
 import { db } from "../utils/db"
 import { users } from "./schema"
 import { Keypair } from "@solana/web3.js";
-
 // State
 
 export const getUserState = async (chatId: number) => {
@@ -40,7 +39,7 @@ export const updateUserWallet = async (chatId: number, keyPair: Keypair) => {
         publicKey: keyPair.publicKey.toString(), 
         secretKey: keyPair.secretKey.toString()
     }).where(eq(users.chatId, chatId));
-
+    
     return user ? true : false;
 }
 

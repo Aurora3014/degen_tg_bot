@@ -2,7 +2,9 @@ import { Keypair } from "@solana/web3.js"
 import bs58 from 'bs58'
 export const createNewWallet = () => {
     const newWallet = Keypair.generate();
-    console.log(newWallet);
+
+    console.log(newWallet.publicKey.toBase58(), newWallet.publicKey.toString());
+    console.log(bs58.encode(newWallet.secretKey));
     return newWallet;
 }
 

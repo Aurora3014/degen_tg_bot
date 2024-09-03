@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import TelegramBot from 'node-telegram-bot-api'
 import { appInstance } from '../controller/webhook';
-
+import '../controller/token/realtime'
 dotenv.config()
 
 const token = process.env.TELEGRAM_BOT_TOKEN!;

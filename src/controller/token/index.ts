@@ -26,19 +26,28 @@ export const getSOlBalance = async (address: string) => {
 }
 
 export async function getTokenBalance(walletAddress: string, tokenMintAddress: string) {
-    // walletAddress = '9d1L1mSs8HrcUvyjYUMZqX4Gkj3bXdZS2cmNaNmeYe3u'
-    const publicKey = new PublicKey(walletAddress);
-    const tokenMint = new PublicKey(tokenMintAddress);
-    
-    // Get all token accounts by the owner (wallet address)
-    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
-        mint: tokenMint,
-    });
-    
-    // Find the token account with the balance
-    const tokenBalance = tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
-    // console.log(tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount);
-    return tokenBalance
+    try{
+        // walletAddress = '9d1L1mSs8HrcUvyjYUMZqX4Gkj3bXdZS2cmNaNmeYe3u'
+        const publicKey = new PublicKey(walletAddress);
+        const tokenMint = new PublicKey(tokenMintAddress);
+        
+        // Get all token accounts by the owner (wallet address)
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
+            mint: tokenMint,
+        });
+        console.log(tokenAccounts, 'TokenBalance')
+        // Find the token account with the balance
+        console.log(tokenAccounts.value[0]?.account?.data.parsed?.info?.tokenAmount)
+        const tokenBalance = tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
+        if(!tokenBalance){
+            console.log('asdfasdfadsf')
+            return;
+        }
+        // console.log(tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount);
+        return tokenBalance
+    } catch {(error: any) => {
+        console.log(error)
+    }}
 }
 
 export async function getPoolInfo(owner: Keypair, mintAddress: string, isBuy: boolean = true){

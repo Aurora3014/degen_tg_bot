@@ -6,14 +6,16 @@ import { getUser, updateUserParams, updateUserState, updateUserWallet } from "..
 import { botInstance } from "../../utils/bot"
 import { USER_STATE } from "../../utils/constant"
 import { db } from "../../utils/db"
-import { orders, users } from "../../model/schema"
+import { eq } from "drizzle-orm";
+
+import { orders, tokens, users } from "../../model/schema"
 import { callbackSetting } from "../callback/setting"
 import { fetchPrice } from "../../controller/api/fetchPrice";
 
 export const inputView = () => {
     botInstance.on('text', async (msg) => {
         if(msg.text![0] == '/') return;
-        const step = 1
+        // const step = 1
         const chatId = msg.chat.id;
         const user = await getUser(chatId)
         if(!user) return;
@@ -40,6 +42,8 @@ export const inputView = () => {
             case USER_STATE.buy_newbuy:
                 console.log('new buy text input')
                 const address = msg.text!;
+                console.log(address)
+
                 if(!isPublicKey(address)) {
                     await botInstance.sendMessage(
                         chatId,
@@ -48,8 +52,8 @@ export const inputView = () => {
                     break;
                 }
                 const tokenInfo = await getTokenInfo(address);
-                const tokenPrice = (await fetchPrice(address))?.data[address].price;
-                console.log(tokenInfo)
+                const tokenPrice = (await fetchPrice(address))?.data[address].value;
+                console.log(tokenInfo, 'textinput/index:52')
                 const user = await getUser(chatId)
                 await updateUserParams(chatId, address);
                 botInstance.sendMessage(
@@ -62,9 +66,9 @@ export const inputView = () => {
                             inline_keyboard: [
                                 [{text:'<< Back', callback_data: 'start'}],
                                 [
-                                    {text:'Buy 1.0 SOL', callback_data: 'buy/option1'},
-                                    {text:'Buy 2.0 SOL', callback_data: 'buy/option2'},
-                                    {text:'Buy X SOL', callback_data: 'buy/optionx'}
+                                    {text:`Buy ${user?.buyOption1} SOL`, callback_data: 'buy/option1'},
+                                    {text:`Buy ${user?.buyOption2} SOL`, callback_data: 'buy/option2'},
+                                    {text:`Buy X SOL`, callback_data: 'buy/optionx'}
                                 ]
                             ]
                         },
@@ -72,7 +76,6 @@ export const inputView = () => {
                     }
                 )
                 await updateUserState(chatId, USER_STATE.idle);
-                
                 break;
             case USER_STATE.buy_option_1:
                 if(isNaN(+msg.text!)){
@@ -161,19 +164,22 @@ export const inputView = () => {
                     )
                     break;
                 }
+                const userInsatance = await getUser(chatId)
+                
                 await db.insert(orders).values({
                     chatId,
-                    tokenAddress: user?.params!,
-                    type: user?.state!,
+                    tokenId: +userInsatance?.params!,
+                    type: userInsatance?.state!,
                     value: +msg.text!
                 })
+                const tokenAddress = (await db.select().from(tokens).where(eq(tokens.id, +userInsatance?.params!)))[0].address;
                 await updateUserState(chatId, USER_STATE.idle);
                 await botInstance.sendMessage(
                     chatId, 
                     `Successfully updated.`,
                     {
                         reply_markup:{
-                            inline_keyboard: [[ {text: '<< Back', callback_data: `manage/token/${user?.params}`} ]]
+                            inline_keyboard: [[ {text: '<< Back', callback_data: `manage/token/${tokenAddress}`} ]]
                         }
                     }
                 )
