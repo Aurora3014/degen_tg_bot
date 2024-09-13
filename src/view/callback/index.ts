@@ -7,6 +7,7 @@ import { callbackWallet } from "./wallet";
 import { callbackSetting } from "./setting";
 import { updateUserState } from "../../model/user";
 import { USER_STATE } from "../../utils/constant";
+import { callbackSniper } from "./sniper";
 
 export const callbackView = () => {
     botInstance.on('callback_query', async (query) => {
@@ -33,6 +34,9 @@ export const callbackView = () => {
             case 'setting':
                 await callbackSetting(+query.message?.chat.id!, query.data!, step);
                 break
+            case 'sniper':
+                await callbackSniper(query, step);
+                break;
             default: 
                 await botInstance.sendMessage(query.message?.chat.id!, 'Oops. Unexpeceted CallbackQuery!');
         }

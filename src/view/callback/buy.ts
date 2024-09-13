@@ -1,5 +1,5 @@
 import { CallbackQuery } from "node-telegram-bot-api";
-import { getUser, updateUserState } from "../../model/user";
+import { getUser, updateUserParams, updateUserState } from "../../model/user";
 import { botInstance } from "../../utils/bot";
 import { getTokensOfUser } from "../../model/token";
 import { REPLY_MARKUP_BUTTON, USER_STATE } from "../../utils/constant";
@@ -22,6 +22,10 @@ export const callbackBuy = async (query: CallbackQuery, step: number) => {
 
             await swapJupiter(chatId, user?.params!, +user?.buyOption2!, true, true)
             break;
+        case 'optionx':
+            await updateUserState(chatId, USER_STATE.buy_x_amount);
+            botInstance.sendMessage(chatId, `Enter amount of SOL to buy.`)
+            break;
         default:
             let keyboards: REPLY_MARKUP_BUTTON[][] = [[]];
             await updateUserState(chatId, USER_STATE.buy_newbuy);
@@ -31,7 +35,7 @@ export const callbackBuy = async (query: CallbackQuery, step: number) => {
             //     keyboards.push([{
             //         text: '$' + userToken.tokens.name,
             //         callback_data: `manage/token/${userToken.tokens.address}`
-            //     }])
+            //     }])            
             // })
 
             keyboards.push([{

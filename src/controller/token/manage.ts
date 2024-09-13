@@ -23,6 +23,10 @@ export const closePosition = async ( chatId: number, tokenAddress: string ) => {
     const user = await getUser(chatId)
     const token = (await getTokenOfUser(chatId, tokenAddress))[0];
     const tokenBalance = await getTokenBalance(user!.publicKey!, token.tokens.address);
+    if(tokenBalance == 0){
+        await db.delete(tokens).where(eq(tokens.chatId, chatId) && eq(tokens.address, tokenAddress) )
+        return;
+    }
     await swapJupiter(user!.chatId, token.tokens.address, tokenBalance, false);
     await db.delete(tokens).where(eq(tokens.chatId, chatId) && eq(tokens.address, tokenAddress) )
 }

@@ -39,14 +39,15 @@ export async function getTokenBalance(walletAddress: string, tokenMintAddress: s
         // Find the token account with the balance
         console.log(tokenAccounts.value[0]?.account?.data.parsed?.info?.tokenAmount)
         const tokenBalance = tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
-        if(!tokenBalance){
+        if(tokenBalance == undefined){
             console.log('asdfasdfadsf')
+            console.error('Token Price Fetch error')
             return;
         }
         // console.log(tokenAccounts.value[0]?.account?.data?.parsed?.info?.tokenAmount);
         return tokenBalance
     } catch {(error: any) => {
-        console.log(error)
+        console.log(error, 'getTokenBalance Error')
     }}
 }
 

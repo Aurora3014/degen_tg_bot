@@ -121,7 +121,6 @@ import { getTokenOfUser } from "../model/token";
       const inputMintInfo = await getMint(connection, new PublicKey(inputMint));
       const outputMintInfo = await getMint(connection, new PublicKey(inputMint));
       
-      // const inputTokenInfo = await getTokenInfo(inputMint)
       botInstance.sendMessage(chatId, 'Processing ...')
       const wallet = new Wallet(importExistingWallet(privateKey));
       console.log("Wallet:", wallet.publicKey.toBase58());
@@ -247,12 +246,14 @@ import { getTokenOfUser } from "../model/token";
                 inputMint == WSOL_ADDRESS ? 
                 res[0].totalSpentSol.add(new BN(spentSol * 10 ** 9)) : 
                 res[0].totalSpentSol.sub(new BN(spentSol * 10 ** 9))})
-            .where(eq(tokens.chatId, chatId) && eq(tokens.address, inputMint));
+            .where(eq(tokens.chatId, chatId) && eq(tokens.address, inputAddress));
         }
       botInstance.sendMessage(chatId, `Tx confirmed\nhttps://solscan.io/tx/${signature}`);
         
     } catch (error) {
       console.log(error)
+      console.error('Error on Swap\n')
+      botInstance.sendMessage(chatId, 'Swap is failed. Please Retry')
     }
   }
   

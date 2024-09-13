@@ -1,4 +1,4 @@
-import { getPoolInfo, getTokenInfo } from "."
+import { getPoolInfo, getSOlBalance, getTokenInfo } from "."
 import { getUser } from "../../model/user"
 import { importExistingWallet } from "../wallet"
 import { NATIVE_MINT } from "@solana/spl-token"
@@ -148,7 +148,14 @@ import { WSOL_ADDRESS } from "../../utils/constant"
 
 export const swapJupiter = async (chatId: number, tokenAddress: string, amountIn: number, isBuy: boolean = true, newBuy: boolean = false) => {
     const user = await getUser(chatId);
-    // getTokenInfo
+    const solBalance = await getSOlBalance(user?.publicKey!);
+    if(amountIn > solBalance && isBuy){
+        botInstance.sendMessage(chatId, 
+            `Invalid SOL amount, Please check balance again.`
+        )
+        return
+    }
+    amountIn = Math.floor(amountIn * 10 ** 9) / 10 ** 9
     await flowQuoteAndSwap(
         user?.secretKey!,
         isBuy ? WSOL_ADDRESS : tokenAddress, 

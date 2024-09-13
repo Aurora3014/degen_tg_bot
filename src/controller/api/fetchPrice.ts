@@ -26,7 +26,6 @@ export async function fetchPrice(address: string, mainAddress?: string) {
                 // vsToken: mainAddress,
             },
         });
-        let priceInMainAddress = 0;
         return response.data as PriceResponse
     } catch (error) {
         console.error('Error fetching price:', error);

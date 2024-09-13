@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "snipe_sol_amount" double precision DEFAULT 0.01 NOT NULL;

@@ -38,6 +38,7 @@ export const users = pgTable('users', {
    buySlippage: doublePrecision("buy_slippage").notNull().default(1),       // %
    sellSlippage: doublePrecision("sell_slippage").notNull().default(1),     // %
    priorityFee: doublePrecision("priority_fee").notNull().default(0.001),   //SOL
+   snipeSolAmount: doublePrecision("snipe_sol_amount").notNull().default(0.01) // sniping amount
 })
 
 export const tokens = pgTable ('tokens', {
@@ -75,12 +76,12 @@ export const orders = pgTable('orders', {
    }).notNull(),
    tokenId: bigint("token_id", {mode: 'number'}).references(() => tokens.id, {
       onDelete: 'cascade'
-   }).notNull(),
+   }),
    timestamp: timestamp("timestamp", { withTimezone: true })
       .defaultNow()
       .notNull(),
    type: varchar("type", { length: 30 })
       .notNull(),
-   value: doublePrecision('value').notNull(),
-   isClosed: boolean('is_closed').notNull().default(true)
+   value: varchar('value', { length: 50 }).notNull(),
+   isClosed: boolean('is_closed').notNull().default(false)
 });

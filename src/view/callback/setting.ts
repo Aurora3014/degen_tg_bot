@@ -39,6 +39,12 @@ export const callbackSetting = async (chatId: number, callBack: string, step: nu
                                 { text: `Sell: ${user?.sellSlippage} %`, callback_data: `setting/sellSlippage` },
                             ],
                             [
+                                { text:'--- Sniping Config ---', callback_data: 'setting/undefined' },
+                            ],
+                            [
+                                { text:`${user?.snipeSolAmount} SOL`, callback_data: `setting/snipeAmount`}
+                            ],
+                            [
                                 { text:'<< Back', callback_data: 'start' },
                             ]
                         ]
@@ -77,6 +83,12 @@ export const callbackSetting = async (chatId: number, callBack: string, step: nu
                 `Enter number to change setting.`
             )
             break
+        case 'snipeAmount':
+            updateUserState(chatId, USER_STATE.snipe_setting);
+            await botInstance.sendMessage(chatId,
+                'Enter SOL amount for sniping '
+            )
+            break;
     }
 
 }

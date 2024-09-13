@@ -33,8 +33,12 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                 text: '<< Back',
                 callback_data: 'start'
             }])
-            
-            await botInstance.sendMessage(chatId,`Reply Token Info or Enter new token address`,{
+            let msg = ''
+            if(!userTokens.length)
+                msg = `You have no Token Positions now`;
+            else
+                msg = `Click Button to manage Token`
+            await botInstance.sendMessage(chatId,msg,{
                 reply_markup: {
                     inline_keyboard: keyboards                    
                 }
@@ -51,7 +55,18 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             deleteLastMessage(query);
             botInstance.sendMessage(chatId, 'Loading ...')
             const address = query.data!.split('/')[step+1];
-            const token = (await getTokenOfUser(chatId, address))[0]
+            const dbToken = await getTokenOfUser(chatId, address)
+            if(dbToken.length == 0){
+                await botInstance.sendMessage(chatId, `Token is not exist.`, {
+                    reply_markup:{
+                        inline_keyboard:[
+                            [{text: '<< Back', callback_data: `manage`}]
+                        ]
+                    }
+                })
+                return
+            }
+            const token = dbToken[0]
             const tokenInfo = await getTokenInfo(address);
             const res = await fetchPrice(address, WSOL_ADDRESS)
             const tokenInSOL = res!.data[address].value / res!.data[WSOL_ADDRESS].value;
@@ -60,14 +75,18 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
             const solBalance = await getSOlBalance(token.users.publicKey!);
             const tokenBalance = await getTokenBalance(token.users.publicKey!, address);
             const profitSol = 
-                 -  token.tokens.totalSpentSol.div(new BN(10 ** 9)).toNumber() +  
+                 - token.tokens.totalSpentSol.toNumber() / (10 ** 9) +  
                 tokenBalance * tokenInSOL ;
-            console.log(address)
+            console.log(
+                'profit calculate',
+                token.tokens.totalSpentSol.toNumber() / (10 ** 9),
+                tokenBalance * tokenInSOL
+            )
             await botInstance.sendMessage(chatId,
                 `${tokenInfo.content.metadata.name} | $${tokenInfo.content.metadata.name}\n` + 
                 `<code>${address}</code>\n` + 
                 `Price: ${tokenInSOL} SOL\n` + 
-                `Profit: ${profitSol} SOL\n` +
+                `Profit: ${profitSol.toFixed(9)} SOL\n` +
                 `Total Spent: ${token.tokens.totalSpentSol.toNumber() / (10 ** 9)} SOL\n` +
                 `Token Balance: ${tokenBalance ? tokenBalance : 0} ${tokenInfo.content.metadata.name}\n` + 
                 `SOL balance: ${solBalance} SOL`,
@@ -126,7 +145,9 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                 } else if(optionString == '2'){
                     buysellAmount = currentUser?.buyOption2!;
                 } else {
-                    console.log('Buy X amount in Manage page\n To do...');
+                    await botInstance.sendMessage(chatId, 'Enter amount of SOL to buy');
+                    await updateUserState(chatId, USER_STATE.buy_x_amount_manage);
+                    await updateUserParams(chatId, tokenAddress!)
                     break;
                 }
             } else {
@@ -136,7 +157,9 @@ export const callbackManage = async (query: CallbackQuery, step: number) => {
                 } else if(optionString == '2'){
                     buysellAmount = +tokenBalanceOfUser * currentUser?.sellOption2! / 100;
                 } else {
-                    console.log('Sell X amount in Manage page\n To do...');
+                    await botInstance.sendMessage(chatId, 'Enter % of token to sell');
+                    await updateUserState(chatId, USER_STATE.sell_x_amount_manage);
+                    await updateUserParams(chatId, tokenAddress! + '_' + tokenBalanceOfUser)
                     break;
                 }
             }
