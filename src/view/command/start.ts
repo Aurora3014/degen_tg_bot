@@ -9,9 +9,9 @@ export const onStart = async (msg: TelegramBot.Message) => {
     if(!user){
         createUser(chatId);
     }
-    const solBalance = await getSOlBalance(user?.publicKey!)
+    const solBalance = user?.publicKey ? await getSOlBalance(user?.publicKey!) : 0;
     await botInstance.sendMessage(msg.chat.id!,
-        `Start Page\nWelcome to degen bot.${user ? `Your Address is <code>${user.publicKey}</code> \n(tap/click to copy)\n Balance: ${solBalance} SOL` : `You have no wallet for now. Create or import in Wallet page`}`, 
+        `Start Page\nWelcome to degen bot.${user?.publicKey ? `\nYour Address is <code>${user.publicKey}</code> \n(tap/click to copy)\n Balance: ${solBalance} SOL` : `\nYou have no wallet for now. Create or import in Wallet page`}`, 
         {
             reply_markup: {
                 inline_keyboard: [
